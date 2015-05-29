@@ -3,6 +3,8 @@ from datetime import datetime, date, timedelta
 
 from github import Github
 
+from config import config
+
 
 def generate_dates(d1, d2, return_format="str", date_format="%Y-%m-%d"):
     d1 = datetime.strptime(d1, date_format)
@@ -24,7 +26,8 @@ class GithubRepoScraper():
         self._sort = sort
         self._order = order
         self._query = ' '.join(qualifiers.values())
-        self._gh = Github()
+        self._gh = Github(config['default'].GITHUB_ID,
+                config['default'].GITHUB_TOKEN)
         self._gh.per_page = per_page
 
     def wait(self):
@@ -51,11 +54,11 @@ class GithubRepoScraper():
         print("DONE: {0}: {1} items scraped".format(date, total))
 
     def scrape(self):
+        print("Ratelimit: {}".format(self._gh.rate_limiting))
         for date in generate_dates(self._d1, self._d2):
             self._scrape(date)
 
-
-ghrs = GithubRepoScraper(d1='2015-01-01', d2='2015-03-01',
+ghrs = GithubRepoScraper(d1='2011-01-01', d2='2015-03-01',
         keywords="android",
         fields="in:name,description,readme",
         language="language:Java")
